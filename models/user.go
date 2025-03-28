@@ -24,7 +24,7 @@ func (u *User) SaveUser() (*User, error) {
 }
 
 // 使用gorm的hook在保存密码前对密码进行hash
-func (u *User) BeforeSave(tx *gorm.DB) error {
+func (u *User) BeforeCreate(tx *gorm.DB) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
