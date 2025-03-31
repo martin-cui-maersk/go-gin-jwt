@@ -23,7 +23,7 @@ func (u *User) SaveUser() (*User, error) {
 	return u, nil
 }
 
-// 使用gorm的hook在保存密码前对密码进行hash
+// BeforeCreate 使用gorm的hook在保存密码前对密码进行hash
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -58,11 +58,12 @@ func LoginCheck(username, password string) (string, error) {
 	return token, nil
 }
 
-// 返回前将用户密码置空
+// PrepareGive 返回前将用户密码置空
 func (u *User) PrepareGive() {
 	u.Password = ""
 }
 
+// GetUserByID
 func GetUserByID(uid uint) (User, error) {
 	var u User
 	if err := DB.First(&u, uid).Error; err != nil {

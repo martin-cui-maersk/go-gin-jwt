@@ -12,5 +12,6 @@ func init() {
 
 func main() {
 	// 启动路由
-	routes.Route()
+	r := routes.Routes()
+	r.Run("0.0.0.0:8000")
 }

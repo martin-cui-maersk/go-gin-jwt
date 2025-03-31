@@ -5,23 +5,28 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-gin-jwt/controllers"
 	"go-gin-jwt/middlewares"
+	"go-gin-jwt/utils/global"
 	"runtime/debug"
 	"time"
 )
 
-func Route() {
+func Routes() *gin.Engine {
 	r := gin.Default()
+
 	//处理找不到路由
 	r.NoRoute(HandleNotFound)
 	r.NoMethod(HandleNotFound)
+
 	// 处理发生异常
 	r.Use(Recover)
 
+	// public路由
 	public := r.Group("/api/auth")
 	{
 		public.POST("/register", controllers.Register)
 		public.POST("/login", controllers.Login)
 	}
+	// protected路由
 	protected := r.Group("/api")
 	{
 		protected.Use(middlewares.JwtAuthMiddleware())
@@ -31,19 +36,19 @@ func Route() {
 	test := r.Group("/api/test")
 	{
 		test.GET("/", func(c *gin.Context) {
-			c.JSON(200, gin.H{"code": 200, "msg": "test jwt"})
+			global.NewSysError(c)
+			global.NewResult().SetMsg("text api1").Build(c)
 		})
 	}
-
-	r.Run("0.0.0.0:8000")
+	return r
 }
 
-// 404,找不到路径时的处理
+// HandleNotFound 404 找不到路径时的处理
 func HandleNotFound(c *gin.Context) {
 	c.JSON(404, gin.H{"code": 500, "msg": "Page not found"})
 }
 
-// 500，内部发生异常时的处理
+// Recover 500 内部发生异常时的处理
 func Recover(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
